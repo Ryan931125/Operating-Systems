@@ -1,48 +1,29 @@
-# Systems Programming in UNIX Environments
+# Operating Systems Projects (C)
 
-This repository contains a collection of core systems programming projects focusing on operating system principles, low-level UNIX environments, and concurrent application design.
+This repository collects my projects from the Operating Systems course. Each project focuses on a different systems topic: network services, process trees with IPC, user-space threading, and parallel compute pipelines.
 
-These projects explore the internals of process management, inter-process communication (IPC), multithreading, network programming, and workload optimization. All implementations are written in C/C++.
+## What This Repository Demonstrates
 
-## 🛠️ Core Skills & Concepts Learned
+- System-level C programming on Unix-like platforms
+- Process and thread orchestration using `fork`, `exec`, `pipe`, `pthread`, `setjmp` and `longjmp`
+- Synchronization and race-condition control (`fcntl` record locking and read/write lock coordination)
+- Work partitioning, scheduling, and queue-based task execution
+- Robust command parsing and stateful runtime behavior
 
-* **Network Programming & Concurrency:** Implemented a multi-user network server using I/O multiplexing (`select`/`poll`) to handle concurrent client requests without blocking.
-* **Process Management & IPC:** Designed robust multi-process architectures using `fork()`, `exec()`, and `pipe()` for complex communication pipelines.
-* **Low-Level Threading & Scheduling:** Built a user space threading runtime from scratch, including custom context switching (`setjmp`/`longjmp`) and thread scheduling.
-* **Synchronization & Safety:** Applied mutexes, semaphores, and file locking (`flock()`) to prevent race conditions and ensure data consistency across shared resources.
-* **Performance Optimization:** Optimized system workloads with parallelism and efficient memory access patterns.
+## Project Index
 
----
+### [Concurrent TCP Server Multiplexing](./Concurrent-Tcp-Server-Multiplexing)
 
-## 📂 Project Overview
+Train-seat booking service with separate read/write server modes, stateful booking flow, and seat-level file locking to protect shared records.
 
-### 1. [Concurrent TCP Server with Multiplexing](./Concurrent-Tcp-Server-Multiplexing)
+### [Multi-Process Tree IPC](./Multi-Process-Tree-Ipc)
 
-A robust multi-user network server simulating a train seat reservation system.
+Hierarchical process tree where each node is a process communicating via pipes to support recursive commands (`Meet`, `Check`, `Graduate`).
 
-* Handled concurrent client connections utilizing I/O multiplexing instead of multi-threading.
-* Implemented strict file locking mechanisms to guarantee record consistency during simultaneous read/write operations.
-* Managed connection timeouts and unexpected client disruptions gracefully via custom signal handling.
+### [User-Space Threading Runtime](./User-Space-Threading-Runtime)
 
-### 2. [Multi-Process Tree with IPC](./Multi-Process-Tree-Ipc)
+Custom user-level threading runtime with context switching, signal-driven scheduling, sleep/wakeup, waiting queues, and read/write lock semantics.
 
-A dynamic process tree modeling real-world social connections and hierarchical data.
+### [Optimized Matrix Multiplication Engine](./Optimized-Matrix-Multiplication-Engine)
 
-* Orchestrated complex parent-child process relationships using `fork()` and `exec()`.
-* Designed custom Inter-Process Communication (IPC) pipelines using `pipe()` and file descriptor duplication (`dup()`) to route queries and commands throughout the tree.
-* Handled safe process termination and resource cleanup to prevent zombie processes.
-
-### 3. [User-Space Threading Runtime](./User-Space-Threading-Runtime)
-
-A custom user-level thread library enabling cooperative multitasking within a single process.
-
-* Designed a Thread Control Block (TCB) to track thread states, metadata, and stack pointers.
-* Implemented custom context switching leveraging `setjmp()` and `longjmp()` to bypass kernel-level threading overhead.
-* Built synchronization primitives (mutexes/semaphores) and a custom scheduler to manage thread execution order safely.
-
-### 4. [Optimized Matrix Multiplication Engine](./Optimized-Matrix-Multiplication-Engine)
-
-A high-performance calculation engine focused on optimizing workloads with parallelism.
-
-* Implemented efficient matrix multiplication algorithms tailored to specific matrix constraints.
-* Focused on memory-safe data parsing and handling edge cases for incompatible data structures.
+Producer-consumer style thread pool for batched matrix multiplication using request decomposition and backend worker execution.

@@ -1,20 +1,34 @@
-# User-Level Thread Library
+# User-Space Threading Runtime
 
-## Overview
+## Problem
 
-This project involves the development of a **User-Level Thread Library** that enables multithreading capabilities within a single process. The library is designed to manage multiple threads, allowing for concurrent execution and efficient CPU utilization without relying on kernel-level threading.
+Build a user-level threading system in C that schedules and synchronizes logical threads inside one process, without relying on kernel thread APIs for context switching behavior.
 
-## Features
+## What I Implemented
 
-1. **Thread Creation and Management**: Implement functions to create, initialize, and manage threads within the user space.
-2. **Context Switching**: Develop mechanisms to switch between different thread contexts, facilitating cooperative multitasking.
-3. **Synchronization**: Implement synchronization primitives to manage access to shared resources among threads.
-4. **Signal Handling**: Incorporate signal handling to manage thread interruptions and ensure robust execution.
+- Thread Control Block (`struct tcb`) with per-thread execution state.
+- Context save/restore with `setjmp` and `longjmp`.
+- Scheduler with ready queue, waiting queue for lock contention, and sleeping set for timed suspension.
+- Signal-driven preemption hooks (`SIGALRM`, `SIGTSTP`) with a central scheduler jump buffer.
+- Read/write lock semantics (`read_lock`, `write_lock`, unlock operations).
+- Thread operations via macros: create/setup/yield/sleep/awake/exit.
+- Demonstration routines: `fibonacci`, `pm` (alternating-sign progression), and `enroll` (locking + scheduling behavior under shared class-capacity state).
 
-## Implementation Details
+## Example Output Snippet
 
-- **Thread Control Block (TCB)**: Design a `struct tcb` to maintain thread-specific information such as thread ID, state, stack pointer, and other necessary metadata.
-- **Scheduler**: Implement a scheduler to manage thread execution order based on a predefined scheduling policy.
-- **Context Switching Mechanism**: Utilize functions like `setjmp()` and `longjmp()` to save and restore thread contexts, enabling seamless switching between threads.
-- **Synchronization Primitives**: Develop mutexes or semaphores to prevent race conditions and ensure data consistency when multiple threads access shared resources.
-- **Signal Handling**: Implement signal handlers to catch and manage signals like `SIGTSTP`, ensuring graceful suspension and resumption of threads.
+```text
+thread 1: set up routine fibonacci
+thread 2: set up routine pm
+thread 1: F_1 = 1
+thread 2: pm(1) = 1
+caught SIGALRM
+thread 1: F_2 = 1
+thread 2: pm(2) = -1
+```
+
+## Skills Demonstrated
+
+- Cooperative and signal-assisted scheduling in user space
+- Queue-based runtime design and explicit thread-state transitions
+- Synchronization primitives for shared-state safety
+- Debugging timing and ordering behavior in concurrent runtimes

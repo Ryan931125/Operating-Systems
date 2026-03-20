@@ -1,64 +1,50 @@
-# csieTrain System
+# Concurrent TCP Train Booking Server
 
-## Overview
+## Problem
 
-The **csieTrain** system is designed to enhance the train seat reservation process by efficiently handling multiple client requests simultaneously. It comprises two main components:
+Design a TCP service for train-seat reservation with two roles:
 
-- **Read Server**: Allows passengers to check seat availability.
-- **Write Server**: Manages seat reservations and updates seat records.
+- `READ_SERVER`: query seat maps for a shift.
+- `WRITE_SERVER`: select seats and commit payment.
 
-## Features
+The key OS challenge is consistency when multiple clients target the same seat record.
 
-1. **Concurrent Request Handling**: Utilizes multiplexing techniques (`select()` or `poll()`) to manage multiple client connections without blocking.
-2. **Record Consistency**: Implements file locking mechanisms to prevent simultaneous modifications and ensure data integrity.
-3. **Connection Timeout Management**: Automatically closes idle connections after a predefined period to free up resources and prevent blocked reservations.
-4. **Robust Connection Handling**: Manages connection disruptions gracefully, ensuring incomplete messages do not impact other client requests.
+## What I Implemented
 
-## Implementation Details
+- Two compile-time server modes (`-D READ_SERVER` and `-D WRITE_SERVER`) with shared core logic.
+- Stateful write flow: `SHIFT -> SEAT -> BOOKED`.
+- Per-seat advisory file locking using `fcntl` record locks (byte-range lock per seat slot).
+- Seat toggle behavior in write mode (choose/cancel before payment).
+- Commit logic that updates persistent seat files and releases acquired locks.
+- Graceful client-exit handling with lock cleanup.
 
-- **Multiplexing**: Employed `select()` system call to monitor multiple file descriptors, enabling the server to handle multiple client connections efficiently.
-- **File Locking**: Used `flock()` to implement advisory locks on seat map files, ensuring that only one process can modify a file at a time.
-- **Timeout Mechanism**: Integrated a timeout feature that tracks client activity and disconnects inactive clients after a specified duration.
-- **Signal Handling**: Implemented signal handlers to manage unexpected client disconnections and clean up resources appropriately.
+## Example Interaction
 
-## Getting Started
+```text
+======================================
+ Welcome to CSIE Train Booking System
+======================================
+Please select the shift you want to book [902001-902005]: 902001
 
-### Prerequisites
+Booking info
+|- Shift ID: 902001
+|- Chose seat(s):
+|- Paid:
 
-- **Operating System**: Unix-like system (e.g., Linux)
-- **Compiler**: GCC
-- **Development Tools**: Make
+Select the seat [1-40] or type "pay" to confirm: 12
+Select the seat [1-40] or type "pay" to confirm: pay
+>>> Your train booking is successful.
+Type "seat" to continue or "exit" to quit [seat/exit]: exit
+>>> Client exit.
+```
 
-### Installation
+## Skills Demonstrated
 
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/your-username/csieTrain.git
-   ```
-2. **Navigate to the Project Directory**:
-   ```bash
-   cd csieTrain
-   ```
-3. **Compile the Servers**:
-   - To compile the read server:
-     ```bash
-     gcc server.c -D READ_SERVER -o read_server
-     ```
-   - To compile the write server:
-     ```bash
-     gcc server.c -D WRITE_SERVER -o write_server
-     ```
-   
-### Usage
+- TCP socket lifecycle (`socket`, `bind`, `listen`, `accept`, `read`, `write`)
+- Persistent shared-state coordination through file descriptors and region locks
+- Protocol/state-machine implementation for interactive network services
+- Failure-path handling and cleanup in long-running server processes
 
-1. **Start the Write Server**:
-   ```bash
-   ./write_server
-   ```
-3. **Start the Read Server**:
-   ```bash
-   ./read_server
-   ```
-5. **Client Interaction**:
-   - Use a TCP client (e.g., telnet or a custom client application) to connect to the servers.
-   - Follow on-screen prompts to check seat availability or make reservations.
+## Scope Note
+
+This codebase primarily demonstrates booking-state logic and lock-safe updates. The assignment context references I/O multiplexing, while the current version runs a blocking connection loop.
